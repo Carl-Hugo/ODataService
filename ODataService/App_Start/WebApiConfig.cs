@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Web.Http;
+﻿using System.Web.Http;
 using Microsoft.Owin.Security.OAuth;
-using Newtonsoft.Json.Serialization;
+using System.Web.OData.Builder;
+using ODataService.Models;
+using System.Web.OData.Extensions;
+using System.Web.OData;
+using ODataService.Controllers;
 
 namespace ODataService
 {
@@ -20,11 +20,28 @@ namespace ODataService
             // Web API routes
             config.MapHttpAttributeRoutes();
 
+            // OData configs
+            var builder = new ODataConventionModelBuilder();
+            builder.EntitySet<MyODataModel>(GetControllerNameOf<MyODataModelController>());
+
+            // Map OData routes
+            config.MapODataServiceRoute(
+                routeName: "ODataRoute",
+                routePrefix: "odata",
+                model: builder.GetEdmModel());
+
+            // Add default route
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+        }
+
+        public static string GetControllerNameOf<TController>()
+            where TController : ODataController
+        {
+            return typeof(TController).Name.Replace("Controller", "");
         }
     }
 }
