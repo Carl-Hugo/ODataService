@@ -2,9 +2,8 @@
 {
     using System.Collections.Generic;
 
-    public class MyODataModel
+    public class MyComplexType
     {
-        public int Id { get; set; }
         public string Description { get; set; }
         public ICollection<MyComplexType> Children { get; set; }
     }
