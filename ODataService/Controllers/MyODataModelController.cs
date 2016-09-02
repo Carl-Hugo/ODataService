@@ -1,4 +1,7 @@
 ﻿using ODataService.Models;
+using ODataService.Repositories;
+using ODataService.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
@@ -8,35 +11,29 @@ namespace ODataService.Controllers
 {
     public class MyODataModelController : ODataController
     {
-        #region Some dummy data
+        private IMyODataModelService MyODataModelService { get; }
 
-        private static List<MyODataModel> InternalDataStore;
-        static MyODataModelController()
+        // Delete this constructor and user dependency injection instead
+        // For simplicity, i omitted any DI container, use the one you like :)
+        public MyODataModelController()
+            : this(new MyODataModelService(new MyDatabaseEntityRepository(), new MyODataModelMapper())) { }
+
+        public MyODataModelController(IMyODataModelService myODataModelService)
         {
-            InternalDataStore = new List<MyODataModel>();
-            for (int i = 0; i < 10; i++)
-            {
-                var id = i + 1;
-                InternalDataStore.Add(new MyODataModel
-                {
-                    Id = id,
-                    Description = string.Format("MyODataModel {0}", id)
-                });
-            }
+            if (myODataModelService == null) { throw new ArgumentNullException(nameof(myODataModelService)); }
+            MyODataModelService = myODataModelService;
         }
-
-        #endregion
 
         [EnableQuery]
         public virtual IHttpActionResult Get()
         {
-            return Ok(InternalDataStore);
+            return Ok(MyODataModelService.All());
         }
 
         [EnableQuery]
         public virtual IHttpActionResult Get([FromODataUri] int key)
         {
-            var record = InternalDataStore.FirstOrDefault(r => r.Id == key);
+            var record = MyODataModelService.Find(key);
             if (record == null)
             {
                 return NotFound();
