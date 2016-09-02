@@ -24,7 +24,8 @@ namespace ODataService
             var builder = new ODataConventionModelBuilder();
             builder.EntitySet<MyODataModel>(GetControllerNameOf<MyODataModelController>());
 
-            builder.ComplexType<MyComplexType>();
+            builder.ComplexType<MyComplexType1>();
+            builder.ComplexType<MyComplexType2>();
 
             // Map OData routes
             config.MapODataServiceRoute(
